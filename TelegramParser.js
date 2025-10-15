@@ -252,6 +252,7 @@ class TelegramParser {
     const subscribersText = $('.tgme_page_extra').text().trim();
     const subscribers = this._parseNumber(subscribersText);
     const description = $('.tgme_page_description').text().trim();
+    const isVerified = $('.tgme_page_title .verified-icon').length > 0 ? 1 : 0;
 
     return {
       type: 'channel',
@@ -259,6 +260,7 @@ class TelegramParser {
       avatar,
       subscribers,
       description,
+      isVerified,
     };
   }
 
@@ -292,6 +294,7 @@ class TelegramParser {
     const name = $('.tgme_page_title span').text().trim();
     const extraText = $('.tgme_page_extra').text().trim();
     const description = $('.tgme_page_description').text().trim();
+    const isVerified = $('.tgme_page_title .verified-icon').length > 0 ? 1 : 0;
 
     const members = this._parseMembersInfo(extraText);
 
@@ -302,6 +305,7 @@ class TelegramParser {
       members: members.total,
       online: members.online,
       description,
+      isVerified,
     };
   }
 

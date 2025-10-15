@@ -12,9 +12,9 @@ npm install telegram-parser
 
 ## Features
 
-- Parse **channels**: name, avatar, subscribers count, description
+- Parse **channels**: name, avatar, subscribers count, description, verification status
 - Parse **bots**: name, username, avatar, description
-- Parse **groups**: name, avatar, members count, online count, description
+- Parse **groups**: name, avatar, members count, online count, description, verification status
 - Parse **channel posts**: author, text, media, reactions, views, date
 - Parse **group posts**: author username, text, media, date
 - Automatically detects resource type
@@ -34,7 +34,8 @@ console.log(channel);
 //   name: 'Лепра',
 //   avatar: 'https://...',
 //   subscribers: 363520,
-//   description: '...'
+//   description: '...',
+//   isVerified: 0
 // }
 ```
 
@@ -63,7 +64,8 @@ console.log(group);
 //   avatar: 'https://...',
 //   members: 1739,
 //   online: 41,
-//   description: '...'
+//   description: '...',
+//   isVerified: 0
 // }
 ```
 
@@ -139,7 +141,8 @@ Parse Telegram resource by username or post path.
   name: string,
   avatar: string | null,
   subscribers: number,
-  description: string
+  description: string,
+  isVerified: number
 }
 ```
 
@@ -164,7 +167,8 @@ Parse Telegram resource by username or post path.
   avatar: string | null,
   members: number,
   online: number,
-  description: string
+  description: string,
+  isVerified: number
 }
 ```
 
@@ -178,14 +182,8 @@ Parse Telegram resource by username or post path.
     username: string
   },
   text: string,
-  media: Array<{
-    type: 'video' | 'photo' | 'video_thumbnail',
-    url: string
-  }>,
-  reactions: Array<{
-    emoji: string,
-    count: number
-  }>,
+  media: Array,
+  reactions: Array,
   views: number,
   date: string,
   url: string
@@ -202,14 +200,8 @@ Parse Telegram resource by username or post path.
     username: string
   },
   text: string,
-  media: Array<{
-    type: 'video' | 'photo' | 'video_thumbnail',
-    url: string
-  }>,
-  reactions: Array<{
-    emoji: string,
-    count: number
-  }>,
+  media: Array,
+  reactions: Array,
   views: number,
   date: string,
   url: string

@@ -1,4 +1,4 @@
-import TelegramParser from './TelegramParser.js';
+import TelegramParser from 'telegram-parser';
 
 /**
  * Usage examples for TelegramParser
@@ -17,7 +17,8 @@ async function examples() {
     name: 'Лепра',
     avatar: 'https://cdn4.telesco.pe/file/...',
     subscribers: 363520,
-    description: '...'
+    description: '...',
+    isVerified: 0
   }
   */
 
@@ -36,7 +37,7 @@ async function examples() {
   }
   */
 
-  // Example 3: Parse public group
+  // Example 3: Parse group
   console.log('\n=== Parsing public group ===');
   const group = await parser.parse('restorecord');
   console.log(group);
@@ -48,7 +49,8 @@ async function examples() {
     avatar: 'https://cdn4.telesco.pe/file/...',
     members: 1739,
     online: 41,
-    description: '...'
+    description: '...',
+    isVerified: 0
   }
   */
 
@@ -105,5 +107,4 @@ async function examples() {
   */
 }
 
-// Run examples
 examples().catch(console.error);
