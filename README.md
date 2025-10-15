@@ -24,7 +24,7 @@ npm install telegram-parser
 ### Parse Channel
 
 ```javascript
-const TelegramParser = require('./TelegramParser');
+import TelegramParser from './TelegramParser.js';
 const parser = new TelegramParser();
 
 const channel = await parser.parse('lepragram');
