@@ -1,3 +1,5 @@
+[![npm version](https://img.shields.io/npm/v/telegram-parser.svg)](https://www.npmjs.com/package/telegram-parser)
+
 # Telegram Parser
 
 Simple library for parsing Telegram resources: channels, bots, public groups, and posts.
