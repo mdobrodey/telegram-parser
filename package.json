@@ -1,6 +1,6 @@
 {
   "name": "telegram-parser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple library for parsing Telegram resources: channels, bots, and public groups.",
   "main": "TelegramParser.js",
   "type": "module",
