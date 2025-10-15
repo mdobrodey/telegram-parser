@@ -17,6 +17,7 @@ npm install telegram-parser
 - Parse **groups**: name, avatar, members count, online count, description, verification status
 - Parse **channel posts**: author, text, media, reactions, views, date
 - Parse **group posts**: author username, text, media, date
+- Get **last 10 posts** from channels
 - Automatically detects resource type
 
 ## Usage
@@ -117,6 +118,38 @@ console.log(groupPost);
 // }
 ```
 
+### Get Last 10 Posts from Channel
+
+```javascript
+const lastPosts = await parser.getLastPosts('lepragram');
+console.log(lastPosts);
+// {
+//   type: 'channel_posts',
+//   posts: [
+//     {
+//       id: '33399',
+//       url: 'https://t.me/lepragram/33399',
+//       author: {
+//         name: 'Лепра',
+//         username: 'lepragram'
+//       },
+//       text: 'Это её первый рабочий день...',
+//       date: '2023-09-18T05:00:38+00:00',
+//       views: 150000,
+//       media: [
+//         {
+//           type: 'photo',
+//           url: 'https://cdn4.telesco.pe/file/...'
+//         }
+//       ],
+//       forwarded: false
+//     },
+//     // ... 9 more posts
+//   ],
+//   url: 'https://t.me/s/lepragram'
+// }
+```
+
 ## API
 
 ### `parse(input)`
@@ -130,6 +163,18 @@ Parse Telegram resource by username or post path.
 **Returns:**
 
 - Promise<Object> - Parsed data object
+
+### `getLastPosts(username)`
+
+Get the last 10 posts from a channel along with channel information.
+
+**Parameters:**
+
+- `username` (string) - Channel username (e.g., 'lepragram')
+
+**Returns:**
+
+- Promise<Object> - Object containing channel info and array of last 10 posts
 
 ## Response Types
 
@@ -182,8 +227,14 @@ Parse Telegram resource by username or post path.
     username: string
   },
   text: string,
-  media: Array,
-  reactions: Array,
+  media: Array<{
+    type: 'photo' | 'video' | 'video_thumbnail',
+    url: string
+  }>,
+  reactions: Array<{
+    emoji: string,
+    count: number
+  }>,
   views: number,
   date: string,
   url: string
@@ -200,10 +251,48 @@ Parse Telegram resource by username or post path.
     username: string
   },
   text: string,
-  media: Array,
-  reactions: Array,
+  media: Array<{
+    type: 'photo' | 'video' | 'video_thumbnail',
+    url: string
+  }>,
+  reactions: Array<{
+    emoji: string,
+    count: number
+  }>,
   views: number,
   date: string,
+  url: string
+}
+```
+
+### Channel Posts Collection
+
+```javascript
+{
+  type: 'channel_posts',
+  channel: {
+    name: string,
+    username: string,
+    subscribers: number,
+    description: string,
+    avatar: string | null
+  },
+  posts: Array<{
+    id: string,
+    url: string,
+    author: {
+      name: string,
+      username: string
+    },
+    text: string,
+    date: string,
+    views: number,
+    media: Array<{
+      type: 'photo' | 'video' | 'video_thumbnail',
+      url: string
+    }>,
+    forwarded: boolean
+  }>,
   url: string
 }
 ```

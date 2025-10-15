@@ -6,7 +6,6 @@ import TelegramParser from 'telegram-parser';
 async function examples() {
   const parser = new TelegramParser();
 
-  // Example 1: Parse channel
   console.log('=== Parsing channel ===');
   const channel = await parser.parse('lepragram');
   console.log(channel);
@@ -22,7 +21,6 @@ async function examples() {
   }
   */
 
-  // Example 2: Parse bot
   console.log('\n=== Parsing bot ===');
   const bot = await parser.parse('roundifyrobot');
   console.log(bot);
@@ -37,8 +35,7 @@ async function examples() {
   }
   */
 
-  // Example 3: Parse group
-  console.log('\n=== Parsing public group ===');
+  console.log('\n=== Parsing group ===');
   const group = await parser.parse('restorecord');
   console.log(group);
   /*
@@ -54,7 +51,6 @@ async function examples() {
   }
   */
 
-  // Example 4: Parse channel post
   console.log('\n=== Parsing channel post ===');
   const channelPost = await parser.parse('lepragram/33399');
   console.log(channelPost);
@@ -85,7 +81,6 @@ async function examples() {
   }
   */
 
-  // Example 5: Parse group post
   console.log('\n=== Parsing group post ===');
   const groupPost = await parser.parse('restorecord/207242');
   console.log(groupPost);
@@ -103,6 +98,51 @@ async function examples() {
     views: 0,
     date: '2025-10-15T15:29:03+00:00',
     url: 'https://t.me/restorecord/207242'
+  }
+  */
+
+  console.log('\n=== Getting last 10 posts from channel ===');
+  const lastPosts = await parser.getLastPosts('lepragram');
+  console.log(lastPosts);
+  /*
+  Expected output:
+  {
+    type: 'channel_posts',
+    posts: [
+      {
+        id: '33399',
+        url: 'https://t.me/lepragram/33399',
+        author: {
+          name: 'Лепра',
+          username: 'lepragram'
+        },
+        text: 'Это её первый рабочий день...',
+        date: '2023-09-18T05:00:38+00:00',
+        views: 150000,
+        media: [
+          {
+            type: 'photo',
+            url: 'https://cdn4.telesco.pe/file/...'
+          }
+        ],
+        forwarded: false
+      },
+      {
+        id: '33398',
+        url: 'https://t.me/lepragram/33398',
+        author: {
+          name: 'Лепра',
+          username: 'lepragram'
+        },
+        text: 'Следующий пост...',
+        date: '2023-09-17T10:15:22+00:00',
+        views: 95000,
+        media: [],
+        forwarded: true
+      },
+      ...
+    ],
+    url: 'https://t.me/s/lepragram'
   }
   */
 }

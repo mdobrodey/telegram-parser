@@ -25,7 +25,6 @@ class TelegramParser {
       };
     }
 
-    // Check if input is a post (contains /)
     if (cleanInput.includes('/')) {
       return this.parsePost(cleanInput);
     }
@@ -64,6 +63,136 @@ class TelegramParser {
   }
 
   /**
+   * Get last 10 posts from a channel
+   * @param {string} username - Channel username
+   * @returns {Promise<Object>} Object with channel info and last 10 posts
+   */
+  async getLastPosts(username) {
+    const cleanUsername = this._cleanUsername(username);
+    const url = `${this.baseUrl}/s/${cleanUsername}`;
+
+    try {
+      const response = await fetch(url, {
+        headers: { 'User-Agent': this.userAgent },
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+
+      const posts = [];
+      $('.tgme_widget_message').each((i, elem) => {
+        if (posts.length >= 10) return false;
+
+        const $post = $(elem);
+        const postData = this._parsePostElement($, $post);
+
+        if (postData) {
+          posts.push(postData);
+        }
+      });
+
+      return {
+        type: 'channel_posts',
+        posts: posts,
+        url: url,
+      };
+    } catch (error) {
+      return {
+        error: error.message,
+        type: 'error',
+      };
+    }
+  }
+
+  /**
+   * Parse a post element from the page
+   * @param {Object} $ - Cheerio instance
+   * @param {Object} $post - Post element
+   * @returns {Object} Parsed post data
+   */
+  _parsePostElement($, $post) {
+    try {
+      const postUrl = $post.attr('data-post');
+      if (!postUrl) return null;
+
+      const [channel, postId] = postUrl.split('/');
+
+      return {
+        id: postId,
+        url: `${this.baseUrl}/${postUrl}`,
+        author: {
+          name:
+            $post.find('.tgme_widget_message_owner_name span').text().trim() ||
+            $post.find('.tgme_widget_message_author_name span').text().trim(),
+          username: channel,
+        },
+        text: $post.find('.tgme_widget_message_text').text().trim(),
+        date:
+          $post.find('.tgme_widget_message_date time').attr('datetime') || '',
+        views: this._parseNumberWithSuffix(
+          $post.find('.tgme_widget_message_views').text().trim()
+        ),
+        media: this._extractMedia($, $post),
+        forwarded: $post.find('.tgme_widget_message_forwarded_from').length > 0,
+      };
+    } catch (error) {
+      console.error('Error parsing post element:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Extract media from element
+   * @param {Object} $ - Cheerio instance
+   * @param {Object} $element - Element to extract media from
+   * @returns {Array} Media URLs
+   */
+  _extractMedia($, $element) {
+    const media = [];
+
+    $element.find('video').each((i, elem) => {
+      const src = $(elem).attr('src');
+      if (src) {
+        media.push({
+          type: 'video',
+          url: src,
+        });
+      }
+    });
+
+    $element.find('.tgme_widget_message_photo_wrap').each((i, elem) => {
+      const style = $(elem).attr('style') || '';
+      const urlMatch = style.match(/url\('([^']+)'\)/);
+      if (urlMatch && urlMatch[1]) {
+        media.push({
+          type: 'photo',
+          url: urlMatch[1],
+        });
+      }
+    });
+
+    if (media.filter((m) => m.type === 'video').length === 0) {
+      $element.find('.tgme_widget_message_video_thumb').each((i, elem) => {
+        const style = $(elem).attr('style') || '';
+        const urlMatch = style.match(/url\('([^']+)'\)/);
+        if (urlMatch && urlMatch[1]) {
+          media.push({
+            type: 'video_thumbnail',
+            url: urlMatch[1],
+          });
+        }
+      });
+    }
+
+    return media;
+  }
+
+  /**
    * Parse Telegram post (channel or group message)
    * @param {string} postPath - Post path (e.g., 'lepragram/33399')
    * @returns {Promise<Object>} Parsed post data
@@ -95,7 +224,7 @@ class TelegramParser {
         type: authorInGroup ? 'group_post' : 'channel_post',
         author: this._parseAuthor($, authorInGroup),
         text: this._parseText($),
-        media: this._parseMedia($),
+        media: this._extractMedia($, message),
         reactions: this._parseReactions($),
         views: this._parseViews($),
         date: this._parseDate($),
@@ -147,54 +276,6 @@ class TelegramParser {
    */
   _parseText($) {
     return $('.tgme_widget_message_text').text().trim();
-  }
-
-  /**
-   * Parse post media (photos, videos)
-   * @param {Object} $ - Cheerio instance
-   * @returns {Array} Media URLs
-   */
-  _parseMedia($) {
-    const media = [];
-
-    // Parse videos
-    $('video').each((i, elem) => {
-      const src = $(elem).attr('src');
-      if (src) {
-        media.push({
-          type: 'video',
-          url: src,
-        });
-      }
-    });
-
-    // Parse photos
-    $('.tgme_widget_message_photo_wrap').each((i, elem) => {
-      const style = $(elem).attr('style') || '';
-      const urlMatch = style.match(/url\('([^']+)'\)/);
-      if (urlMatch && urlMatch[1]) {
-        media.push({
-          type: 'photo',
-          url: urlMatch[1],
-        });
-      }
-    });
-
-    // Parse video thumbnails if no video src found
-    if (media.filter((m) => m.type === 'video').length === 0) {
-      $('.tgme_widget_message_video_thumb').each((i, elem) => {
-        const style = $(elem).attr('style') || '';
-        const urlMatch = style.match(/url\('([^']+)'\)/);
-        if (urlMatch && urlMatch[1]) {
-          media.push({
-            type: 'video_thumbnail',
-            url: urlMatch[1],
-          });
-        }
-      });
-    }
-
-    return media;
   }
 
   /**
