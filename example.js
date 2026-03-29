@@ -101,8 +101,8 @@ async function examples() {
   }
   */
 
-  console.log('\n=== Getting last 10 posts from channel ===');
-  const lastPosts = await parser.getLastPosts('lepragram');
+  console.log('\n=== Getting last 5 posts from channel ===');
+  const lastPosts = await parser.getLastPosts('lepragram', 5);
   console.log(lastPosts);
   /*
   Expected output:

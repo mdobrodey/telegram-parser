@@ -63,11 +63,12 @@ class TelegramParser {
   }
 
   /**
-   * Get last 10 posts from a channel
+   * Get latest posts from a channel
    * @param {string} username - Channel username
-   * @returns {Promise<Object>} Object with channel info and last 10 posts
+   * @param {number} limit - Number of latest posts to return (default: 10)
+   * @returns {Promise<Object>} Object with channel info and latest posts
    */
-  async getLastPosts(username) {
+  async getLastPosts(username, limit = 10) {
     const cleanUsername = this._cleanUsername(username);
     const url = `${this.baseUrl}/s/${cleanUsername}`;
 
@@ -86,19 +87,19 @@ class TelegramParser {
 
       const posts = [];
       $('.tgme_widget_message').each((i, elem) => {
-        if (posts.length >= 10) return false;
-
         const $post = $(elem);
         const postData = this._parsePostElement($, $post);
-
         if (postData) {
           posts.push(postData);
         }
       });
 
+      // Posts in DOM are oldest→newest, sort by ID descending to get truly latest
+      posts.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
       return {
         type: 'channel_posts',
-        posts: posts,
+        posts: posts.slice(0, limit),
         url: url,
       };
     } catch (error) {
